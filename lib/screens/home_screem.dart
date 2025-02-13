@@ -7,12 +7,27 @@ import 'package:http/http.dart' as http;
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
+//Petición a la API
   Future<List<dynamic>> FetchRecipes() async{
-    final url=Uri.parse('http://localhost:8080/trabajadores');
-    final response = await http.get(url);
-    final data = jsonDecode(response.body);
+    
+   final url=Uri.parse('http://10.0.2.2:8080/trabajadores');
+      // final url=Uri.parse('http://localhost:8080/trabajadores');
 
-    return data;
+
+    try{
+      final response = await http.get(url);
+      if(response.statusCode == 200){
+        final data= jsonDecode(response.body);
+        return data;
+      } else{
+        print('Error ${response.statusCode}');
+        return [];
+      }
+    }catch (e){
+      print('Error in request');
+      return [];
+    }
+   
   }
 
   @override
@@ -21,11 +36,21 @@ class HomeScreen extends StatelessWidget {
       body: FutureBuilder<List<dynamic>>(future: FetchRecipes(), 
       builder: (context, snapshot){
         final trabajadores = snapshot.data ?? [];
+        //Estados de carga
+        if(snapshot.connectionState== ConnectionState.waiting){
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if(!snapshot.hasData || snapshot.data!.isEmpty){
+          return const Center(child: Text('No found'));
+        }
+        else{
         return ListView.builder(
           itemCount: trabajadores.length, 
           itemBuilder: (context, index){
           return _PortexCard(context, trabajadores[index]);
         });
+      }
       }),
       floatingActionButton: FloatingActionButton(
           backgroundColor: Color.fromRGBO(26, 96, 143, 1),
