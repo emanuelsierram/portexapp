@@ -1,54 +1,34 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:portex_vs/providers/trabajador_provider.dart';
 import 'package:portex_vs/screens/trabajador_detail.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-//Petición a la API
-  Future<List<dynamic>> FetchRecipes() async{
-    
-   final url=Uri.parse('http://10.0.2.2:8080/trabajadores');
-      // final url=Uri.parse('http://localhost:8080/trabajadores');
-
-
-    try{
-      final response = await http.get(url);
-      if(response.statusCode == 200){
-        final data= jsonDecode(response.body);
-        return data;
-      } else{
-        print('Error ${response.statusCode}');
-        return [];
-      }
-    }catch (e){
-      print('Error in request');
-      return [];
-    }
-   
-  }
-
   @override
   Widget build(BuildContext context) {
+
+    final trabajadorProvider = Provider.of<TrabajadorProvider>(context, listen: false);
+    trabajadorProvider.FetchTrabajador();
+
+
     return Scaffold(
-      body: FutureBuilder<List<dynamic>>(future: FetchRecipes(), 
-      builder: (context, snapshot){
-        final trabajadores = snapshot.data ?? [];
+      body: Consumer<TrabajadorProvider>( 
+      builder: (context, provider, child){
         //Estados de carga
-        if(snapshot.connectionState== ConnectionState.waiting){
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if(!snapshot.hasData || snapshot.data!.isEmpty){
+        if(provider.isLoading){
+          return const Center(child: CircularProgressIndicator(),);
+        }
+        else if(provider.trabajadores.isEmpty){
           return const Center(child: Text('No found'));
         }
         else{
         return ListView.builder(
-          itemCount: trabajadores.length, 
+          itemCount: provider.trabajadores.length, 
           itemBuilder: (context, index){
-          return _PortexCard(context, trabajadores[index]);
+          return _PortexCard(context, provider.trabajadores[index]);
         });
       }
       }),
@@ -95,7 +75,7 @@ class HomeScreen extends StatelessWidget {
   Widget _PortexCard(BuildContext context, dynamic trabajador) {
     return GestureDetector(
       onTap: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=> TrabajadorDetail(trabajadorName: trabajador['nombres'])));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=> TrabajadorDetail(trabajadorData: trabajador)));
 
       },
       child: Padding(
@@ -122,22 +102,22 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      trabajador['nombres'],
-                      style: TextStyle(fontSize: 16, fontFamily: 'Quicksand'),
+                      trabajador.nombres,
+                       style: const TextStyle(fontSize: 16, fontFamily: 'Quicksand'),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 4,
                     ),
                     Container(
                       height: 1,
                       width: 75,
-                      color: const Color.fromRGBO(26, 96, 143, 1),
+                      color:  Color.fromRGBO(26, 96, 143, 1),
                     ),
                     Text(
-                     trabajador['profesion'],
-                      style: TextStyle(fontSize: 16, fontFamily: 'Quicksand'),
+                     trabajador.profesion,
+                      style: const TextStyle(fontSize: 16, fontFamily: 'Quicksand'),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 4,
                     )
                   ],

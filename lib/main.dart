@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:portex_vs/providers/trabajador_provider.dart';
+import 'package:portex_vs/screens/favorite_screem.dart';
 import 'package:portex_vs/screens/home_screem.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(const MyApp());
 
@@ -8,10 +11,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Hola Mundo',
-        home: RecibeBook());
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_)=>TrabajadorProvider())
+      ],
+      child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Hola Mundo',
+          home: RecibeBook()),
+    );
   }
 }
 
@@ -21,7 +29,7 @@ class RecibeBook extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 1,
+      length: 2,
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: const Color.fromRGBO(26, 96, 143, 1),
@@ -34,10 +42,12 @@ class RecibeBook extends StatelessWidget {
             labelColor: Colors.white,
             unselectedLabelColor: Colors.white,
             tabs:[
-           Tab(icon: Icon(Icons.home), text: 'Home',)
+           Tab(icon: Icon(Icons.home), text: 'Home',),
+           Tab(icon: Icon(Icons.favorite), text: "Favorites",)
           ]),
+
         ),
-      body: TabBarView(children: [HomeScreen()])),
+    body: const TabBarView(children: [HomeScreen(), FavoriteScreem()])),
     );
   }
 }
