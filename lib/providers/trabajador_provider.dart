@@ -23,7 +23,8 @@ class TrabajadorProvider extends ChangeNotifier {
     try{
       final response = await http.get(url);
       if(response.statusCode == 200){
-        final data= jsonDecode(response.body);
+        String decodedResponse = utf8.decode(response.bodyBytes);
+        final data= jsonDecode(decodedResponse);
         trabajadores = List<Trabajador>.from(data.
         map((trabajador)=> Trabajador.fromJSON(trabajador)));
       } else{
