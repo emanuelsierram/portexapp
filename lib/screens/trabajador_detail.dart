@@ -70,16 +70,13 @@ class _TrabajadorDetailState extends State<TrabajadorDetail> with SingleTickerPr
                     .toggleFavoriteStatus(widget.trabajadorData);
                 setState(() {
                   isFavorite = !isFavorite;
+                  _controller.forward();
                 });
               },
-              icon: AnimatedSwitcher(
-                  duration: Duration(milliseconds: 300),
-                  transitionBuilder: (child, animation) {
-                    return ScaleTransition(scale: animation, child: child);
-                  },
+              icon: ScaleTransition(
+                  scale: _scaleAnimation,                
                   child: Icon(
-                      isFavorite ? Icons.favorite : Icons.favorite_border,
-                      key: ValueKey<bool>(isFavorite),
+                      isFavorite ? Icons.favorite : Icons.favorite_border,    
                       color: Colors.red)))
         ],
       ),
